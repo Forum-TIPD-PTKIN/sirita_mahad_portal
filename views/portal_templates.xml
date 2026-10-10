@@ -81,12 +81,31 @@
         <!-- E-Perizinan Page -->
         <template id="portal_my_permits" name="Riwayat E-Perizinan">
             <t t-call="portal.portal_layout">
-                <t t-set="breadcrumbs_searchbar" t-value="True"/>
                 <div class="container py-3">
-                    <h3 class="fw-bold mb-4"><i class="fa fa-id-card text-primary me-2"/> Riwayat E-Perizinan</h3>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="fw-bold mb-0"><i class="fa fa-id-card text-primary me-2"/> Riwayat E-Perizinan</h3>
+                        <a href="/my/permits/new" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                            <i class="fa fa-plus-circle me-1"/> Buat Pengajuan Izin Baru
+                        </a>
+                    </div>
+
+                    <t t-if="success_msg">
+                        <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm" role="alert">
+                            <i class="fa fa-check-circle me-2"/><t t-esc="success_msg"/>
+                        </div>
+                    </t>
+                    <t t-if="error_msg">
+                        <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm" role="alert">
+                            <i class="fa fa-exclamation-triangle me-2"/><t t-esc="error_msg"/>
+                        </div>
+                    </t>
+
                     <t t-if="not permits">
-                        <div class="alert alert-info shadow-sm rounded-3">
-                            <i class="fa fa-info-circle me-2"/> Belum ada riwayat pengajuan izin pesiar atau bermalam.
+                        <div class="alert alert-info shadow-sm rounded-3 p-4 text-center">
+                            <i class="fa fa-info-circle fa-2x mb-2 text-info d-block"/>
+                            <h5>Belum ada pengajuan perizinan.</h5>
+                            <p class="text-muted mb-3">Klik tombol di atas untuk mengajukan izin pesiar atau bermalam.</p>
+                            <a href="/my/permits/new" class="btn btn-sm btn-outline-primary rounded-pill px-3">Ajukan Sekarang</a>
                         </div>
                     </t>
                     <t t-else="">
@@ -94,24 +113,32 @@
                             <table class="table table-hover align-middle">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>Nomor Izin</th>
-                                        <th>Jenis Izin</th>
-                                        <th>Tanggal Keluar</th>
-                                        <th>Tanggal Kembali</th>
-                                        <th>Alasan</th>
-                                        <th>Status</th>
+                                        <th>Kode Izin</th>
+                                        <th>Jenis Perizinan</th>
+                                        <th>Tujuan / Alamat</th>
+                                        <th>Rencana Keberangkatan</th>
+                                        <th>Rencana Kembali</th>
+                                        <th>Status Approval</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <t t-foreach="permits" t-as="p">
                                         <tr>
                                             <td class="fw-bold" t-esc="p.name"/>
-                                            <td t-esc="p.permit_type"/>
-                                            <td t-esc="p.start_date"/>
-                                            <td t-esc="p.end_date"/>
-                                            <td t-esc="p.reason"/>
                                             <td>
-                                                <span t-attf-class="badge rounded-pill bg-#{'success' if p.state == 'approved' else 'warning' if p.state == 'draft' else 'danger'}" t-esc="p.state"/>
+                                                <span t-if="p.permit_type == 'pesiar'" class="badge bg-info bg-opacity-10 text-info px-2 py-1">Izin Pesiar</span>
+                                                <span t-else="" class="badge bg-purple bg-opacity-10 text-purple px-2 py-1">Izin Bermalam</span>
+                                            </td>
+                                            <td t-esc="p.destination"/>
+                                            <td t-esc="p.departure_time"/>
+                                            <td t-esc="p.expected_return_time"/>
+                                            <td>
+                                                <span t-if="p.state == 'draft'" class="badge rounded-pill bg-warning text-dark">Draft / Menunggu Musyrif</span>
+                                                <span t-elif="p.state == 'musyrif_approved'" class="badge rounded-pill bg-info">Disetujui Musyrif</span>
+                                                <span t-elif="p.state == 'mudhir_approved'" class="badge rounded-pill bg-success">Disetujui Mudhir</span>
+                                                <span t-elif="p.state == 'checked_out'" class="badge rounded-pill bg-primary">Di Luar Kompleks</span>
+                                                <span t-elif="p.state == 'checked_in'" class="badge rounded-pill bg-secondary">Selesai (Kembali)</span>
+                                                <span t-else="" class="badge rounded-pill bg-danger">Ditolak</span>
                                             </td>
                                         </tr>
                                     </t>
@@ -123,14 +150,119 @@
             </t>
         </template>
 
+        <!-- Form Pengajuan Izin Baru -->
+        <template id="portal_my_permits_new" name="Form Pengajuan Perizinan">
+            <t t-call="portal.portal_layout">
+                <div class="container py-3">
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-md-8">
+                            <div class="card shadow-sm border-0 rounded-3 p-4">
+                                <div class="d-flex align-items-center mb-4">
+                                    <a href="/my/permits" class="btn btn-light rounded-circle me-3"><i class="fa fa-arrow-left"/></a>
+                                    <h4 class="fw-bold mb-0"><i class="fa fa-paper-plane text-primary me-2"/> Form Pengajuan Izin Mandiri</h4>
+                                </div>
+
+                                <t t-if="error_msg">
+                                    <div class="alert alert-danger rounded-3" role="alert">
+                                        <i class="fa fa-exclamation-circle me-2"/><t t-esc="error_msg"/>
+                                    </div>
+                                </t>
+
+                                <form action="/my/permits/submit" method="post">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Jenis Perizinan <span class="text-danger">*</span></label>
+                                        <select name="permit_type" class="form-select" required="required">
+                                            <option value="pesiar">Izin Pesiar (Siang / Sore - Tidak Bermalam)</option>
+                                            <option value="bermalam">Izin Bermalam / Pulang Kampung</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Tujuan / Alamat Lengkap <span class="text-danger">*</span></label>
+                                        <input type="text" name="destination" class="form-control" placeholder="Contoh: Jl. Poros Pinrang, Kota Parepare / Rumah Orang Tua" required="required"/>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Rencana Waktu Keluar <span class="text-danger">*</span></label>
+                                            <input type="datetime-local" name="departure_time" class="form-control" required="required"/>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Rencana Waktu Kembali <span class="text-danger">*</span></label>
+                                            <input type="datetime-local" name="expected_return_time" class="form-control" required="required"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Alasan Keperluan Izin <span class="text-danger">*</span></label>
+                                        <textarea name="reason" class="form-control" rows="3" placeholder="Sebutkan keperluan mendesak izin pesiar/bermalam..." required="required"></textarea>
+                                    </div>
+
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" class="btn btn-primary rounded-pill py-2 fw-bold shadow-sm">
+                                            <i class="fa fa-send me-1"/> Kirim Pengajuan Izin
+                                        </button>
+                                        <a href="/my/permits" class="btn btn-light rounded-pill py-2">Batal</a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+
         <!-- Buku Kendali Page -->
         <template id="portal_my_talim" name="Buku Kendali Ta'lim &amp; Hafalan">
             <t t-call="portal.portal_layout">
                 <div class="container py-3">
-                    <h3 class="fw-bold mb-4"><i class="fa fa-book text-success me-2"/> Buku Kendali Ta'lim &amp; Hafalan</h3>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="fw-bold mb-0"><i class="fa fa-book text-success me-2"/> Buku Kendali Ta'lim &amp; Hafalan</h3>
+                        <button type="button" class="btn btn-success rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalJanjiSetoran">
+                            <i class="fa fa-plus-circle me-1"/> Ajukan Janji Setoran
+                        </button>
+                    </div>
+
+                    <t t-if="success_msg">
+                        <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm" role="alert">
+                            <i class="fa fa-check-circle me-2"/><t t-esc="success_msg"/>
+                        </div>
+                    </t>
+                    <t t-if="error_msg">
+                        <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm" role="alert">
+                            <i class="fa fa-exclamation-triangle me-2"/><t t-esc="error_msg"/>
+                        </div>
+                    </t>
+
+                    <!-- Summary Cards -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-12 col-md-4">
+                            <div class="card shadow-sm border-0 rounded-3 p-3 bg-success bg-opacity-10 text-success">
+                                <h6 class="fw-bold mb-1"><i class="fa fa-check-square-o me-2"/>Setoran Ziyadah</h6>
+                                <h3 class="fw-bold mb-0"><t t-esc="ziyadah_count"/> Record</h3>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="card shadow-sm border-0 rounded-3 p-3 bg-primary bg-opacity-10 text-primary">
+                                <h6 class="fw-bold mb-1"><i class="fa fa-star me-2"/>Predikat Mumtaz</h6>
+                                <h3 class="fw-bold mb-0"><t t-esc="mumtaz_count"/> Setoran</h3>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="card shadow-sm border-0 rounded-3 p-3 bg-info bg-opacity-10 text-info">
+                                <h6 class="fw-bold mb-1"><i class="fa fa-users me-2"/>Halaqah / Kelas</h6>
+                                <h3 class="fw-bold mb-0"><t t-esc="len(classes)"/> Halaqah</h3>
+                            </div>
+                        </div>
+                    </div>
+
                     <t t-if="not talim_records">
-                        <div class="alert alert-info shadow-sm rounded-3">
-                            <i class="fa fa-info-circle me-2"/> Belum ada catatan riwayat kehadiran ta'lim atau hafalan Al-Qur'an.
+                        <div class="alert alert-info shadow-sm rounded-3 p-4 text-center">
+                            <i class="fa fa-info-circle fa-2x mb-2 text-info d-block"/>
+                            <h5>Belum ada riwayat setoran hafalan / mutaba'ah.</h5>
+                            <p class="text-muted mb-0">Riwayat setoran dan nilai dari musyrif akan muncul di sini.</p>
                         </div>
                     </t>
                     <t t-else="">
@@ -139,20 +271,29 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th>Tanggal</th>
-                                        <th>Materi / Surah</th>
-                                        <th>Musyrif / Pengampu</th>
-                                        <th>Status Kehadiran</th>
-                                        <th>Nilai / Catatan</th>
+                                        <th>Halaqah / Kelas</th>
+                                        <th>Kategori</th>
+                                        <th>Surah / Juz / Topik</th>
+                                        <th>Predikat Status</th>
+                                        <th>Catatan Musyrif</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <t t-foreach="talim_records" t-as="t">
                                         <tr>
                                             <td t-esc="t.date"/>
-                                            <td class="fw-bold" t-esc="t.material"/>
-                                            <td t-esc="t.instructor_id.name if t.instructor_id else '-'"/>
+                                            <td class="fw-bold" t-esc="t.class_id.name"/>
                                             <td>
-                                                <span t-attf-class="badge bg-#{'success' if t.status == 'present' else 'danger'}" t-esc="t.status"/>
+                                                <span t-if="t.category == 'ziyadah'" class="badge bg-success">Ziyadah</span>
+                                                <span t-elif="t.category == 'murajaah'" class="badge bg-primary">Muraja'ah</span>
+                                                <span t-else="" class="badge bg-secondary" t-esc="t.category"/>
+                                            </td>
+                                            <td t-esc="t.surah_juz_topic"/>
+                                            <td>
+                                                <span t-if="t.grade_status == 'mumtaz'" class="badge rounded-pill bg-success">Mumtaz</span>
+                                                <span t-elif="t.grade_status == 'jayyid_jiddan'" class="badge rounded-pill bg-info">Jayyid Jiddan</span>
+                                                <span t-elif="t.grade_status == 'jayyid'" class="badge rounded-pill bg-warning text-dark">Jayyid</span>
+                                                <span t-else="" class="badge rounded-pill bg-danger">Rasib</span>
                                             </td>
                                             <td t-esc="t.notes or '-'"/>
                                         </tr>
@@ -161,6 +302,50 @@
                             </table>
                         </div>
                     </t>
+                </div>
+
+                <!-- Modal Janji Setoran Hafalan -->
+                <div class="modal fade" id="modalJanjiSetoran" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content border-0 shadow">
+                            <div class="modal-header bg-success text-white">
+                                <h5 class="modal-title fw-bold"><i class="fa fa-book me-2"/> Form Janji Setoran Hafalan</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"/>
+                            </div>
+                            <form action="/my/talim/submit" method="post">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Pilih Halaqah / Kelas <span class="text-danger">*</span></label>
+                                        <select name="class_id" class="form-select" required="required">
+                                            <t t-foreach="classes" t-as="c">
+                                                <option t-att-value="c.id" t-esc="c.name"/>
+                                            </t>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Kategori Setoran <span class="text-danger">*</span></label>
+                                        <select name="category" class="form-select" required="required">
+                                            <option value="ziyadah">Ziyadah (Setoran Baru)</option>
+                                            <option value="murajaah">Muraja'ah (Pengulangan Hafalan)</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Target Surah / Juz / Ayat <span class="text-danger">*</span></label>
+                                        <input type="text" name="surah_juz_topic" class="form-control" placeholder="Contoh: Q.S. An-Naba' 1-30 / Juz 30" required="required"/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Catatan Tambahan untuk Musyrif</label>
+                                        <textarea name="notes" class="form-control" rows="2" placeholder="Catatan jam/waktu bimbingan yang diinginkan..."></textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                                    <button type="submit" class="btn btn-success fw-bold px-4">Kirim Janji Setoran</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </t>
         </template>
