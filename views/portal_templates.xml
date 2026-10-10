@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- 1. INHERIT /my DASHBOARD & ADD CARDS -->
+        <template id="portal_my_home_mahasantri" name="Portal Mahasantri Home" inherit_id="portal.portal_my_home" priority="20">
+            <xpath expr="//div[hasclass('o_portal_docs')]" position="after">
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h4 class="fw-bold mb-3 text-dark">
+                            <i class="fa fa-graduation-cap text-teal me-2"/> Layanan Mahasantri Ma'had
+                        </h4>
+                    </div>
+                </div>
+                <div class="row g-3 mb-4">
+                    <!-- E-Perizinan Card -->
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <a href="/my/permits" class="card shadow-sm border-0 h-100 text-decoration-none text-reset hover-elevate p-3">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3 text-primary">
+                                    <i class="fa fa-id-card fa-2x"/>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1">E-Perizinan</h6>
+                                    <small class="text-muted">Izin Pesiar &amp; Bermalam</small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Buku Kendali (Ta'lim & Hafalan) Card -->
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <a href="/my/talim" class="card shadow-sm border-0 h-100 text-decoration-none text-reset hover-elevate p-3">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3 text-success">
+                                    <i class="fa fa-book fa-2x"/>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Buku Kendali</h6>
+                                    <small class="text-muted">Ta'lim &amp; Hafalan Al-Qur'an</small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Poin Disiplin Card -->
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <a href="/my/penalties" class="card shadow-sm border-0 h-100 text-decoration-none text-reset hover-elevate p-3">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-warning bg-opacity-10 p-3 me-3 text-warning">
+                                    <i class="fa fa-shield fa-2x"/>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Catatan Disiplin</h6>
+                                    <small class="text-muted">Poin &amp; Sanksi Edukatif</small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Syahadah & Sertifikat Card -->
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <a href="/my/syahadah" class="card shadow-sm border-0 h-100 text-decoration-none text-reset hover-elevate p-3">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-info bg-opacity-10 p-3 me-3 text-info">
+                                    <i class="fa fa-certificate fa-2x"/>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Syahadah Digital</h6>
+                                    <small class="text-muted">Verifikasi &amp; Kelulusan</small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </xpath>
+        </template>
+
+        <!-- 2. PAGE TEMPLATES FOR EACH PORTAL FEATURE -->
+
+        <!-- E-Perizinan Page -->
+        <template id="portal_my_permits" name="Riwayat E-Perizinan">
+            <t t-call="portal.portal_layout">
+                <t t-set="breadcrumbs_searchbar" t-value="True"/>
+                <div class="container py-3">
+                    <h3 class="fw-bold mb-4"><i class="fa fa-id-card text-primary me-2"/> Riwayat E-Perizinan</h3>
+                    <t t-if="not permits">
+                        <div class="alert alert-info shadow-sm rounded-3">
+                            <i class="fa fa-info-circle me-2"/> Belum ada riwayat pengajuan izin pesiar atau bermalam.
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <div class="table-responsive bg-white rounded-3 shadow-sm p-3">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Nomor Izin</th>
+                                        <th>Jenis Izin</th>
+                                        <th>Tanggal Keluar</th>
+                                        <th>Tanggal Kembali</th>
+                                        <th>Alasan</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="permits" t-as="p">
+                                        <tr>
+                                            <td class="fw-bold" t-esc="p.name"/>
+                                            <td t-esc="p.permit_type"/>
+                                            <td t-esc="p.start_date"/>
+                                            <td t-esc="p.end_date"/>
+                                            <td t-esc="p.reason"/>
+                                            <td>
+                                                <span t-attf-class="badge rounded-pill bg-#{'success' if p.state == 'approved' else 'warning' if p.state == 'draft' else 'danger'}" t-esc="p.state"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </template>
+
+        <!-- Buku Kendali Page -->
+        <template id="portal_my_talim" name="Buku Kendali Ta'lim &amp; Hafalan">
+            <t t-call="portal.portal_layout">
+                <div class="container py-3">
+                    <h3 class="fw-bold mb-4"><i class="fa fa-book text-success me-2"/> Buku Kendali Ta'lim &amp; Hafalan</h3>
+                    <t t-if="not talim_records">
+                        <div class="alert alert-info shadow-sm rounded-3">
+                            <i class="fa fa-info-circle me-2"/> Belum ada catatan riwayat kehadiran ta'lim atau hafalan Al-Qur'an.
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <div class="table-responsive bg-white rounded-3 shadow-sm p-3">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Materi / Surah</th>
+                                        <th>Musyrif / Pengampu</th>
+                                        <th>Status Kehadiran</th>
+                                        <th>Nilai / Catatan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="talim_records" t-as="t">
+                                        <tr>
+                                            <td t-esc="t.date"/>
+                                            <td class="fw-bold" t-esc="t.material"/>
+                                            <td t-esc="t.instructor_id.name if t.instructor_id else '-'"/>
+                                            <td>
+                                                <span t-attf-class="badge bg-#{'success' if t.status == 'present' else 'danger'}" t-esc="t.status"/>
+                                            </td>
+                                            <td t-esc="t.notes or '-'"/>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </template>
+
+        <!-- Catatan Disiplin Page -->
+        <template id="portal_my_penalties" name="Catatan Disiplin">
+            <t t-call="portal.portal_layout">
+                <div class="container py-3">
+                    <h3 class="fw-bold mb-4"><i class="fa fa-shield text-warning me-2"/> Catatan Kedisiplinan Mahasantri</h3>
+                    <t t-if="not penalties">
+                        <div class="alert alert-success shadow-sm rounded-3">
+                            <i class="fa fa-check-circle me-2"/> Alhamdulillah! Anda tidak memiliki catatan pelanggaran kedisiplinan.
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <div class="table-responsive bg-white rounded-3 shadow-sm p-3">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Jenis Pelanggaran</th>
+                                        <th>Poin Pelanggaran</th>
+                                        <th>Sanksi Edukatif</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="penalties" t-as="pen">
+                                        <tr>
+                                            <td t-esc="pen.date"/>
+                                            <td class="fw-bold" t-esc="pen.name"/>
+                                            <td><span class="badge bg-danger" t-esc="pen.point"/> Poin</td>
+                                            <td t-esc="pen.punishment or '-'"/>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </template>
+
+        <!-- Syahadah Page -->
+        <template id="portal_my_syahadah" name="Syahadah Digital">
+            <t t-call="portal.portal_layout">
+                <div class="container py-3">
+                    <h3 class="fw-bold mb-4"><i class="fa fa-certificate text-info me-2"/> Syahadah &amp; Kelulusan Digital</h3>
+                    <t t-if="not syahadah_records">
+                        <div class="alert alert-info shadow-sm rounded-3">
+                            <i class="fa fa-info-circle me-2"/> Syahadah digital belum diterbitkan. Pastikan seluruh kelengkapan hafalan &amp; administrasi telah terpenuhi.
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <div class="row g-3">
+                            <t t-foreach="syahadah_records" t-as="s">
+                                <div class="col-12 col-md-6">
+                                    <div class="card shadow-sm border-0 rounded-3 p-4">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <i class="fa fa-award fa-3x text-warning me-3"/>
+                                            <div>
+                                                <h5 class="fw-bold mb-0" t-esc="s.name"/>
+                                                <small class="text-muted">Nomor Seri: <t t-esc="s.serial_number"/></small>
+                                            </div>
+                                        </div>
+                                        <p class="text-muted">Predikat Kelulusan: <strong class="text-dark" t-esc="s.grade"/></p>
+                                        <div class="d-grid mt-3">
+                                            <a t-attf-href="/syahadah/print/#{s.id}" class="btn btn-outline-primary rounded-pill">
+                                                <i class="fa fa-download me-1"/> Unduh Sertifikat PDF
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </template>
+
+    </data>
+</odoo>
