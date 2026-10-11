@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+from urllib.parse import quote_plus
 from odoo import http, _
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
@@ -80,7 +80,7 @@ class MahasantriPortal(CustomerPortal):
             })
             return request.redirect('/my/permits?success_msg=Pengajuan+perizinan+berhasil+dikirim.')
         except Exception as e:
-            return request.redirect(f'/my/permits/new?error_msg={http.url_quote(str(e))}')
+            return request.redirect(f'/my/permits/new?error_msg={quote_plus(str(e))}')
 
     @http.route(['/my/talim'], type='http', auth="user", website=True)
     def portal_my_talim(self, **kw):
@@ -131,7 +131,50 @@ class MahasantriPortal(CustomerPortal):
             })
             return request.redirect('/my/talim?success_msg=Janji+setoran+hafalan+berhasil+diajukan.')
         except Exception as e:
-            return request.redirect(f'/my/talim?error_msg={http.url_quote(str(e))}')
+            return request.redirect(f'/my/talim?error_msg={quote_plus(str(e))}')
+
+    @http.route(['/my/invoices'], type='http', auth="user", website=True)
+    def portal_my_invoices(self, **kw):
+        partner = request.env.user.partner_id
+        invoices = request.env['hostel.rent.invoice'].search([
+            ('student_id', '=', partner.id)
+        ], order="period_start desc") if 'hostel.rent.invoice' in request.env else []
+
+        unpaid_count = len([i for i in invoices if i.state in ('draft', 'invoiced', 'overdue')])
+        paid_count = len([i for i in invoices if i.state == 'paid'])
+
+        values = self._prepare_portal_layout_values()
+        values.update({
+            'invoices': invoices,
+            'unpaid_count': unpaid_count,
+            'paid_count': paid_count,
+            'page_name': 'invoice_list',
+            'success_msg': kw.get('success_msg'),
+            'error_msg': kw.get('error_msg'),
+        })
+        return request.render("sirita_mahad_portal.portal_my_invoices", values)
+
+    @http.route(['/my/invoices/upload_proof'], type='http', auth="user", methods=['POST'], website=True, csrf=True)
+    def portal_my_invoices_upload_proof(self, **post):
+        partner = request.env.user.partner_id
+        invoice_id = post.get('invoice_id')
+        notes = post.get('notes')
+
+        if not invoice_id:
+            return request.redirect('/my/invoices?error_msg=Tagihan+tidak+valid.')
+
+        try:
+            inv = request.env['hostel.rent.invoice'].sudo().browse(int(invoice_id))
+            if inv and inv.student_id.id == partner.id:
+                # Catat bukti bayar ke chatter / notes
+                inv.sudo().message_post(
+                    body=f"<b>Konfirmasi Bukti Transfer Mahasantri (Portal):</b><br/>{notes or 'Konfirmasi pembayaran via transfer bank.'}",
+                    subject="Konfirmasi Pembayaran Portal"
+                )
+                return request.redirect('/my/invoices?success_msg=Konfirmasi+bukti+pembayaran+berhasil+dikirim+ke+pengelola.')
+            return request.redirect('/my/invoices?error_msg=Data+tagihan+tidak+ditemukan.')
+        except Exception as e:
+            return request.redirect(f'/my/invoices?error_msg={quote_plus(str(e))}')
 
     @http.route(['/my/penalties'], type='http', auth="user", website=True)
     def portal_my_penalties(self, **kw):
@@ -140,9 +183,14 @@ class MahasantriPortal(CustomerPortal):
             ('student_id', '=', partner.id)
         ], order="date desc") if 'mahad.penalty.record' in request.env else []
 
+        total_points = sum(p.points for p in penalties if p.state in ('confirmed', 'completed'))
+        sp_status = partner.sp_status or 'aman'
+
         values = self._prepare_portal_layout_values()
         values.update({
             'penalties': penalties,
+            'total_points': total_points,
+            'sp_status': sp_status,
             'page_name': 'penalty_list',
         })
         return request.render("sirita_mahad_portal.portal_my_penalties", values)
@@ -160,3 +208,82 @@ class MahasantriPortal(CustomerPortal):
             'page_name': 'syahadah_list',
         })
         return request.render("sirita_mahad_portal.portal_my_syahadah", values)
+
+    @http.route(['/syahadah/print/<int:syahadah_id>'], type='http', auth="user", website=True)
+    def portal_my_syahadah_print(self, syahadah_id=None, **kw):
+        partner = request.env.user.partner_id
+        syahadah = request.env['mahad.syahadah'].sudo().browse(syahadah_id)
+        if not syahadah or (syahadah.student_id.id != partner.id and not request.env.user.has_group('base.group_user')):
+            return request.redirect('/my/syahadah')
+
+        report = request.env.ref('sirita_mahad_pembinaan.action_report_mahad_syahadah', raise_if_not_found=False)
+        if report:
+            pdf_content, _ = report.sudo()._render_qweb_pdf([syahadah.id])
+            pdfhttpheaders = [
+                ('Content-Type', 'application/pdf'),
+                ('Content-Length', len(pdf_content)),
+                ('Content-Disposition', f'attachment; filename="Syahadah_{syahadah.name.replace("/", "_")}.pdf"')
+            ]
+            return request.make_response(pdf_content, headers=pdfhttpheaders)
+        return request.redirect('/my/syahadah')
+
+    @http.route(['/my/complaints'], type='http', auth="user", website=True)
+    def portal_my_complaints(self, **kw):
+        partner = request.env.user.partner_id
+        complaints = request.env['hostel.complaint'].search([
+            ('student_id', '=', partner.id)
+        ], order="create_date desc") if 'hostel.complaint' in request.env else []
+
+        values = self._prepare_portal_layout_values()
+        values.update({
+            'complaints': complaints,
+            'page_name': 'complaint_list',
+            'success_msg': kw.get('success_msg'),
+            'error_msg': kw.get('error_msg'),
+        })
+        return request.render("sirita_mahad_portal.portal_my_complaints", values)
+
+    @http.route(['/my/complaints/new'], type='http', auth="user", website=True)
+    def portal_my_complaints_new(self, **kw):
+        partner = request.env.user.partner_id
+        # Dapatkan kontrak kamar aktif
+        contract = request.env['hostel.contract'].search([
+            ('student_id', '=', partner.id),
+            ('state', '=', 'active')
+        ], limit=1) if 'hostel.contract' in request.env else None
+
+        values = self._prepare_portal_layout_values()
+        values.update({
+            'contract': contract,
+            'page_name': 'complaint_form',
+            'error_msg': kw.get('error_msg'),
+        })
+        return request.render("sirita_mahad_portal.portal_my_complaints_new", values)
+
+    @http.route(['/my/complaints/submit'], type='http', auth="user", methods=['POST'], website=True, csrf=True)
+    def portal_my_complaints_submit(self, **post):
+        partner = request.env.user.partner_id
+        category = post.get('category', 'facilities')
+        subject = post.get('subject')
+        description = post.get('description')
+        priority = post.get('priority', 'medium')
+        building_id = post.get('building_id')
+        room_id = post.get('room_id')
+
+        if not (subject and description):
+            return request.redirect('/my/complaints/new?error_msg=Harap+isi+judul+dan+uraian+keluhan+kerusakan.')
+
+        try:
+            complaint = request.env['hostel.complaint'].sudo().create({
+                'student_id': partner.id,
+                'category': category,
+                'subject': subject,
+                'description': description,
+                'priority': priority,
+                'building_id': int(building_id) if building_id else False,
+                'room_id': int(room_id) if room_id else False,
+                'state': 'submitted',
+            })
+            return request.redirect('/my/complaints?success_msg=Pengaduan+kerusakan+berhasil+dikirim+ke+pengelola.')
+        except Exception as e:
+            return request.redirect(f'/my/complaints/new?error_msg={quote_plus(str(e))}')

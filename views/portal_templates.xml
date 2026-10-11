@@ -14,7 +14,7 @@
                 </div>
                 <div class="row g-3 mb-4">
                     <!-- E-Perizinan Card -->
-                    <div class="col-12 col-md-6 col-lg-3">
+                    <div class="col-12 col-md-6 col-lg-4">
                         <a href="/my/permits" class="card shadow-sm border-0 h-100 text-decoration-none text-reset hover-elevate p-3">
                             <div class="d-flex align-items-center">
                                 <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3 text-primary">
@@ -29,7 +29,7 @@
                     </div>
 
                     <!-- Buku Kendali (Ta'lim & Hafalan) Card -->
-                    <div class="col-12 col-md-6 col-lg-3">
+                    <div class="col-12 col-md-6 col-lg-4">
                         <a href="/my/talim" class="card shadow-sm border-0 h-100 text-decoration-none text-reset hover-elevate p-3">
                             <div class="d-flex align-items-center">
                                 <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3 text-success">
@@ -43,8 +43,23 @@
                         </a>
                     </div>
 
+                    <!-- Tagihan & Keuangan Asrama Card -->
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <a href="/my/invoices" class="card shadow-sm border-0 h-100 text-decoration-none text-reset hover-elevate p-3">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-danger bg-opacity-10 p-3 me-3 text-danger">
+                                    <i class="fa fa-credit-card fa-2x"/>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Tagihan &amp; Keuangan</h6>
+                                    <small class="text-muted">Sewa Kamar &amp; Pembayaran</small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
                     <!-- Poin Disiplin Card -->
-                    <div class="col-12 col-md-6 col-lg-3">
+                    <div class="col-12 col-md-6 col-lg-4">
                         <a href="/my/penalties" class="card shadow-sm border-0 h-100 text-decoration-none text-reset hover-elevate p-3">
                             <div class="d-flex align-items-center">
                                 <div class="rounded-circle bg-warning bg-opacity-10 p-3 me-3 text-warning">
@@ -59,7 +74,7 @@
                     </div>
 
                     <!-- Syahadah & Sertifikat Card -->
-                    <div class="col-12 col-md-6 col-lg-3">
+                    <div class="col-12 col-md-6 col-lg-4">
                         <a href="/my/syahadah" class="card shadow-sm border-0 h-100 text-decoration-none text-reset hover-elevate p-3">
                             <div class="d-flex align-items-center">
                                 <div class="rounded-circle bg-info bg-opacity-10 p-3 me-3 text-info">
@@ -68,6 +83,21 @@
                                 <div>
                                     <h6 class="fw-bold mb-1">Syahadah Digital</h6>
                                     <small class="text-muted">Verifikasi &amp; Kelulusan</small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- E-Pengaduan Sarpras Card -->
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <a href="/my/complaints" class="card shadow-sm border-0 h-100 text-decoration-none text-reset hover-elevate p-3">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-secondary bg-opacity-10 p-3 me-3 text-secondary">
+                                    <i class="fa fa-wrench fa-2x"/>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Pengaduan Sarpras</h6>
+                                    <small class="text-muted">Lapor Kerusakan &amp; Fasilitas</small>
                                 </div>
                             </div>
                         </a>
@@ -350,14 +380,45 @@
             </t>
         </template>
 
-        <!-- Catatan Disiplin Page -->
-        <template id="portal_my_penalties" name="Catatan Disiplin">
+        <!-- Tagihan & Keuangan Asrama Page -->
+        <template id="portal_my_invoices" name="Tagihan Keuangan Asrama">
             <t t-call="portal.portal_layout">
                 <div class="container py-3">
-                    <h3 class="fw-bold mb-4"><i class="fa fa-shield text-warning me-2"/> Catatan Kedisiplinan Mahasantri</h3>
-                    <t t-if="not penalties">
-                        <div class="alert alert-success shadow-sm rounded-3">
-                            <i class="fa fa-check-circle me-2"/> Alhamdulillah! Anda tidak memiliki catatan pelanggaran kedisiplinan.
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="fw-bold mb-0"><i class="fa fa-credit-card text-danger me-2"/> Tagihan &amp; Keuangan Asrama</h3>
+                    </div>
+
+                    <t t-if="success_msg">
+                        <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm" role="alert">
+                            <i class="fa fa-check-circle me-2"/><t t-esc="success_msg"/>
+                        </div>
+                    </t>
+                    <t t-if="error_msg">
+                        <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm" role="alert">
+                            <i class="fa fa-exclamation-triangle me-2"/><t t-esc="error_msg"/>
+                        </div>
+                    </t>
+
+                    <!-- Summary Cards -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-12 col-md-6">
+                            <div class="card shadow-sm border-0 rounded-3 p-3 bg-danger bg-opacity-10 text-danger">
+                                <h6 class="fw-bold mb-1"><i class="fa fa-clock-o me-2"/>Belum Lunas / Dalam Tagihan</h6>
+                                <h3 class="fw-bold mb-0"><t t-esc="unpaid_count"/> Periode</h3>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="card shadow-sm border-0 rounded-3 p-3 bg-success bg-opacity-10 text-success">
+                                <h6 class="fw-bold mb-1"><i class="fa fa-check-circle me-2"/>Lunas Dilunasi</h6>
+                                <h3 class="fw-bold mb-0"><t t-esc="paid_count"/> Periode</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <t t-if="not invoices">
+                        <div class="alert alert-info shadow-sm rounded-3 p-4 text-center">
+                            <i class="fa fa-info-circle fa-2x mb-2 text-info d-block"/>
+                            <h5>Belum ada riwayat tagihan sewa / administrasi asrama.</h5>
                         </div>
                     </t>
                     <t t-else="">
@@ -365,19 +426,141 @@
                             <table class="table table-hover align-middle">
                                 <thead class="table-light">
                                     <tr>
+                                        <th>Keterangan Tagihan</th>
+                                        <th>Periode</th>
+                                        <th>Jatuh Tempo</th>
+                                        <th>Jumlah Tagihan</th>
+                                        <th>Status Pembayaran</th>
+                                        <th>Konfirmasi Bayar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="invoices" t-as="inv">
+                                        <tr>
+                                            <td class="fw-bold" t-esc="inv.name"/>
+                                            <td><t t-esc="inv.period_start"/> s/d <t t-esc="inv.period_end"/></td>
+                                            <td t-esc="inv.due_date"/>
+                                            <td class="fw-bold text-dark">
+                                                Rp <t t-esc="('{:,.0f}'.format(inv.total_with_penalty or inv.amount))"/>
+                                            </td>
+                                            <td>
+                                                <span t-if="inv.state == 'paid'" class="badge rounded-pill bg-success">Lunas</span>
+                                                <span t-elif="inv.state == 'overdue'" class="badge rounded-pill bg-danger">Menunggak (Overdue)</span>
+                                                <span t-elif="inv.state == 'invoiced'" class="badge rounded-pill bg-warning text-dark">Belum Dibayar</span>
+                                                <span t-else="" class="badge rounded-pill bg-secondary" t-esc="inv.state"/>
+                                            </td>
+                                            <td>
+                                                <t t-if="inv.state != 'paid'">
+                                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-bs-toggle="modal" t-attf-data-bs-target="#modalPay_#{inv.id}">
+                                                        <i class="fa fa-upload me-1"/> Upload Bukti Bayar
+                                                    </button>
+
+                                                    <!-- Modal Confirm Payment -->
+                                                    <div class="modal fade" t-attf-id="modalPay_#{inv.id}" tabindex="-1" aria-hidden="true">
+                                                        <div class="modal-dialog">
+                                                            <div class="modal-content border-0 shadow">
+                                                                <div class="modal-header bg-danger text-white">
+                                                                    <h5 class="modal-title fw-bold"><i class="fa fa-credit-card me-2"/> Konfirmasi Pembayaran Tagihan</h5>
+                                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"/>
+                                                                </div>
+                                                                <form action="/my/invoices/upload_proof" method="post">
+                                                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                                    <input type="hidden" name="invoice_id" t-att-value="inv.id"/>
+                                                                    <div class="modal-body text-start">
+                                                                        <div class="alert alert-light border rounded-3 mb-3">
+                                                                            <div><strong>Tagihan:</strong> <t t-esc="inv.name"/></div>
+                                                                            <div><strong>Total Bayar:</strong> Rp <t t-esc="('{:,.0f}'.format(inv.total_with_penalty or inv.amount))"/></div>
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label fw-bold">Catatan Transfer / Bank Asal &amp; Pengirim <span class="text-danger">*</span></label>
+                                                                            <textarea name="notes" class="form-control" rows="3" placeholder="Contoh: Transfer Bank BSI a.n. Ahmad Husairi, Tanggal 10 Okt 2026 jam 14:30 WITA" required="required"></textarea>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                                                                        <button type="submit" class="btn btn-danger fw-bold px-4">Kirim Konfirmasi</button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </t>
+                                                <t t-else="">
+                                                    <span class="text-muted small"><i class="fa fa-check text-success me-1"/>Terverifikasi</span>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </template>
+
+        <!-- Catatan Disiplin Page -->
+        <template id="portal_my_penalties" name="Catatan Disiplin">
+            <t t-call="portal.portal_layout">
+                <div class="container py-3">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="fw-bold mb-0"><i class="fa fa-shield text-warning me-2"/> Catatan Kedisiplinan Mahasantri</h3>
+                    </div>
+
+                    <!-- Summary Cards Status SP -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-12 col-md-6">
+                            <div class="card shadow-sm border-0 rounded-3 p-3 bg-warning bg-opacity-10 text-dark">
+                                <h6 class="fw-bold mb-1"><i class="fa fa-exclamation-triangle text-warning me-2"/>Total Akumulasi Poin Pelanggaran</h6>
+                                <h3 class="fw-bold mb-0 text-danger"><t t-esc="total_points"/> Poin</h3>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="card shadow-sm border-0 rounded-3 p-3 bg-light">
+                                <h6 class="fw-bold mb-1"><i class="fa fa-shield me-2"/>Status Peringatan Kedisiplinan</h6>
+                                <h4 class="fw-bold mb-0">
+                                    <span t-if="sp_status == 'aman'" class="badge bg-success">Aman (&lt; 25 Poin)</span>
+                                    <span t-elif="sp_status == 'sp1'" class="badge bg-warning text-dark">SP-1 / Nasihat Pembina</span>
+                                    <span t-elif="sp_status == 'sp2'" class="badge bg-orange text-white">SP-2 / Panggilan Orang Tua</span>
+                                    <span t-else="" class="badge bg-danger">SP-3 / Sanksi Pengeluaran</span>
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <t t-if="not penalties">
+                        <div class="alert alert-success shadow-sm rounded-3 p-4 text-center">
+                            <i class="fa fa-check-circle fa-2x mb-2 text-success d-block"/>
+                            <h5>Alhamdulillah! Anda tidak memiliki catatan pelanggaran kedisiplinan.</h5>
+                            <p class="text-muted mb-0">Pertahankan kedisiplinan dan tata tertib Ma'had Al-Jami'ah.</p>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <div class="table-responsive bg-white rounded-3 shadow-sm p-3">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Kode</th>
                                         <th>Tanggal</th>
-                                        <th>Jenis Pelanggaran</th>
-                                        <th>Poin Pelanggaran</th>
-                                        <th>Sanksi Edukatif</th>
+                                        <th>Kategori Pelanggaran</th>
+                                        <th>Bobot Poin</th>
+                                        <th>Tugas Takzir Edukatif</th>
+                                        <th>Status Takzir</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <t t-foreach="penalties" t-as="pen">
                                         <tr>
-                                            <td t-esc="pen.date"/>
                                             <td class="fw-bold" t-esc="pen.name"/>
-                                            <td><span class="badge bg-danger" t-esc="pen.point"/> Poin</td>
-                                            <td t-esc="pen.punishment or '-'"/>
+                                            <td t-esc="pen.date"/>
+                                            <td class="fw-bold" t-esc="pen.category_id.name"/>
+                                            <td><span class="badge bg-danger" t-esc="pen.points"/> Poin</td>
+                                            <td t-esc="pen.takzir_note or '-'"/>
+                                            <td>
+                                                <span t-if="pen.state == 'completed'" class="badge rounded-pill bg-success">Takzir Selesai</span>
+                                                <span t-elif="pen.state == 'confirmed'" class="badge rounded-pill bg-warning text-dark">Poin Aktif</span>
+                                                <span t-else="" class="badge rounded-pill bg-secondary" t-esc="pen.state"/>
+                                            </td>
                                         </tr>
                                     </t>
                                 </tbody>
@@ -394,8 +577,10 @@
                 <div class="container py-3">
                     <h3 class="fw-bold mb-4"><i class="fa fa-certificate text-info me-2"/> Syahadah &amp; Kelulusan Digital</h3>
                     <t t-if="not syahadah_records">
-                        <div class="alert alert-info shadow-sm rounded-3">
-                            <i class="fa fa-info-circle me-2"/> Syahadah digital belum diterbitkan. Pastikan seluruh kelengkapan hafalan &amp; administrasi telah terpenuhi.
+                        <div class="alert alert-info shadow-sm rounded-3 p-4 text-center">
+                            <i class="fa fa-info-circle fa-2x mb-2 text-info d-block"/>
+                            <h5>Syahadah digital belum diterbitkan.</h5>
+                            <p class="text-muted mb-0">Pastikan seluruh kelengkapan hafalan, bebas poin pelanggaran, dan administrasi telah terpenuhi.</p>
                         </div>
                     </t>
                     <t t-else="">
@@ -407,11 +592,11 @@
                                             <i class="fa fa-award fa-3x text-warning me-3"/>
                                             <div>
                                                 <h5 class="fw-bold mb-0" t-esc="s.name"/>
-                                                <small class="text-muted">Nomor Seri: <t t-esc="s.serial_number"/></small>
+                                                <small class="text-muted">Nomor Seri: <t t-esc="s.serial_number or s.name"/></small>
                                             </div>
                                         </div>
-                                        <p class="text-muted">Predikat Kelulusan: <strong class="text-dark" t-esc="s.grade"/></p>
-                                        <div class="d-grid mt-3">
+                                        <p class="text-muted mb-3">Predikat Kelulusan: <strong class="text-dark" t-esc="s.predikat or 'Mumtaz'"/></p>
+                                        <div class="d-grid">
                                             <a t-attf-href="/syahadah/print/#{s.id}" class="btn btn-outline-primary rounded-pill">
                                                 <i class="fa fa-download me-1"/> Unduh Sertifikat PDF
                                             </a>
@@ -421,6 +606,173 @@
                             </t>
                         </div>
                     </t>
+                </div>
+            </t>
+        </template>
+
+        <!-- E-Pengaduan Sarpras Page -->
+        <template id="portal_my_complaints" name="Pengaduan Fasilitas &amp; Sarpras">
+            <t t-call="portal.portal_layout">
+                <div class="container py-3">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="fw-bold mb-0"><i class="fa fa-wrench text-secondary me-2"/> Pengaduan Fasilitas &amp; Sarpras</h3>
+                        <a href="/my/complaints/new" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                            <i class="fa fa-plus-circle me-1"/> Buat Pengaduan Baru
+                        </a>
+                    </div>
+
+                    <t t-if="success_msg">
+                        <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm" role="alert">
+                            <i class="fa fa-check-circle me-2"/><t t-esc="success_msg"/>
+                        </div>
+                    </t>
+                    <t t-if="error_msg">
+                        <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm" role="alert">
+                            <i class="fa fa-exclamation-triangle me-2"/><t t-esc="error_msg"/>
+                        </div>
+                    </t>
+
+                    <t t-if="not complaints">
+                        <div class="alert alert-light border rounded-3 p-4 text-center">
+                            <i class="fa fa-check-circle-o fa-2x mb-2 text-success d-block"/>
+                            <h5 class="text-dark">Belum ada riwayat pengaduan kerusakan fasilitas.</h5>
+                            <p class="text-muted mb-0">Jika terdapat kendala sarana, air, listrik, atau fasilitas kamar asrama, silakan klik tombol "Buat Pengaduan Baru".</p>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <div class="table-responsive bg-white rounded-3 shadow-sm p-3">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Kode / Ref</th>
+                                        <th>Kategori</th>
+                                        <th>Uraian Permasalahan</th>
+                                        <th>Lokasi (Kamar)</th>
+                                        <th>Prioritas</th>
+                                        <th>Status Penanganan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="complaints" t-as="c">
+                                        <tr>
+                                            <td class="fw-bold text-primary" t-esc="c.name"/>
+                                            <td>
+                                                <span t-if="c.category == 'facilities'" class="badge bg-primary">Fasilitas / Sarpras</span>
+                                                <span t-elif="c.category == 'cleanliness'" class="badge bg-info">Kebersihan</span>
+                                                <span t-elif="c.category == 'room_issue'" class="badge bg-warning text-dark">Kamar / Ranjang</span>
+                                                <span t-elif="c.category == 'safety'" class="badge bg-danger">Keamanan</span>
+                                                <span t-elif="c.category == 'noise'" class="badge bg-dark">Ketertiban / Bising</span>
+                                                <span t-else="" class="badge bg-secondary" t-esc="c.category"/>
+                                            </td>
+                                            <td>
+                                                <div class="fw-bold" t-esc="c.subject"/>
+                                                <small class="text-muted" t-esc="c.description[:100] + ('...' if len(c.description or '') &gt; 100 else '')"/>
+                                            </td>
+                                            <td>
+                                                <span t-if="c.room_id" t-esc="c.room_id.name"/>
+                                                <span t-else="" class="text-muted">-</span>
+                                            </td>
+                                            <td>
+                                                <span t-if="c.priority == 'urgent'" class="badge bg-danger">Mendesak</span>
+                                                <span t-elif="c.priority == 'high'" class="badge bg-warning text-dark">Tinggi</span>
+                                                <span t-elif="c.priority == 'medium'" class="badge bg-info text-dark">Sedang</span>
+                                                <span t-else="" class="badge bg-secondary">Rendah</span>
+                                            </td>
+                                            <td>
+                                                <span t-if="c.state == 'draft'" class="badge rounded-pill bg-light text-dark border">Draft</span>
+                                                <span t-elif="c.state == 'submitted'" class="badge rounded-pill bg-warning text-dark">Terkirim / Mengantri</span>
+                                                <span t-elif="c.state == 'under_review'" class="badge rounded-pill bg-info">Sedang Ditinjau / Diperbaiki</span>
+                                                <span t-elif="c.state == 'resolved'" class="badge rounded-pill bg-success">Selesai Ditangani</span>
+                                                <span t-elif="c.state == 'closed'" class="badge rounded-pill bg-secondary">Ditutup</span>
+                                                <span t-elif="c.state == 'escalated'" class="badge rounded-pill bg-danger">Eskalasi Pimpinan</span>
+                                                <span t-else="" class="badge rounded-pill bg-dark" t-esc="c.state"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </template>
+
+        <!-- Form Pengaduan Baru -->
+        <template id="portal_my_complaints_new" name="Form Pengaduan Fasilitas">
+            <t t-call="portal.portal_layout">
+                <div class="container py-3">
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-md-8">
+                            <div class="card shadow-sm border-0 rounded-3 p-4">
+                                <div class="d-flex align-items-center mb-4">
+                                    <a href="/my/complaints" class="btn btn-light rounded-circle me-3"><i class="fa fa-arrow-left"/></a>
+                                    <h4 class="fw-bold mb-0"><i class="fa fa-wrench text-secondary me-2"/> Form Lapor Kerusakan Fasilitas</h4>
+                                </div>
+
+                                <t t-if="error_msg">
+                                    <div class="alert alert-danger rounded-3" role="alert">
+                                        <i class="fa fa-exclamation-circle me-2"/><t t-esc="error_msg"/>
+                                    </div>
+                                </t>
+
+                                <form action="/my/complaints/submit" method="post">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <input t-if="contract and contract.building_id" type="hidden" name="building_id" t-att-value="contract.building_id.id"/>
+                                    <input t-if="contract and contract.room_id" type="hidden" name="room_id" t-att-value="contract.room_id.id"/>
+
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold">Gedung / Asrama</label>
+                                            <input type="text" class="form-control" readonly="readonly" t-att-value="contract.building_id.name if contract and contract.building_id else 'Asrama Ma\'had'"/>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold">Nomor Kamar</label>
+                                            <input type="text" class="form-control" readonly="readonly" t-att-value="contract.room_id.name if contract and contract.room_id else 'Sesuai Penempatan'"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold">Kategori Keluhan <span class="text-danger">*</span></label>
+                                            <select name="category" class="form-select" required="required">
+                                                <option value="facilities" selected="selected">Fasilitas / Sarana Prasarana (Air, Listrik, Keran)</option>
+                                                <option value="room_issue">Kamar / Ranjang / Lemari Rusak</option>
+                                                <option value="cleanliness">Kebersihan Lingkungan Asrama</option>
+                                                <option value="safety">Keamanan &amp; Ketertiban</option>
+                                                <option value="other">Lainnya</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold">Tingkat Urgensi <span class="text-danger">*</span></label>
+                                            <select name="priority" class="form-select" required="required">
+                                                <option value="medium" selected="selected">Sedang (Perbaikan Normal)</option>
+                                                <option value="high">Tinggi (Mengganggu Aktivitas)</option>
+                                                <option value="urgent">Mendesak (Air Mati total / Bahaya Kelistrikan)</option>
+                                                <option value="low">Rendah (Penyempurnaan)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Judul / Pokok Kerusakan <span class="text-danger">*</span></label>
+                                        <input type="text" name="subject" class="form-control" placeholder="Contoh: Kran air wastafel patah / Lampu kamar redup" required="required"/>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Uraian / Kronologi Kerusakan <span class="text-danger">*</span></label>
+                                        <textarea name="description" class="form-control" rows="4" placeholder="Jelaskan detail kendala agar petugas sarpras/teknisi dapat mempersiapkan perbaikan..." required="required"></textarea>
+                                    </div>
+
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" class="btn btn-primary rounded-pill py-2 fw-bold shadow-sm">
+                                            <i class="fa fa-send me-1"/> Kirim Laporan Pengaduan
+                                        </button>
+                                        <a href="/my/complaints" class="btn btn-light rounded-pill py-2">Batal</a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </t>
         </template>
