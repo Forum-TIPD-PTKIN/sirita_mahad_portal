@@ -3,3 +3,5 @@ access_mahad_talim_record_portal,access.mahad.talim.record.portal,sirita_mahad_p
 access_mahad_permit_portal,access.mahad.permit.portal,sirita_mahad_pembinaan.model_mahad_permit,base.group_portal,cru
 access_mahad_penalty_record_portal,access.mahad.penalty.record.portal,sirita_mahad_pembinaan.model_mahad_penalty_record,base.group_portal,r
 access_mahad_syahadah_portal,access.mahad.syahadah.portal,sirita_mahad_pembinaan.model_mahad_syahadah,base.group_portal,r
+access_hostel_complaint_portal,access.hostel.complaint.portal,sirita_mahad.model_hostel_complaint,base.group_portal,cru
+access_hostel_rent_invoice_portal,access.hostel.rent.invoice.portal,sirita_mahad.model_hostel_rent_invoice,base.group_portal,r

@@ -230,7 +230,7 @@ class MahasantriPortal(CustomerPortal):
     @http.route(['/my/complaints'], type='http', auth="user", website=True)
     def portal_my_complaints(self, **kw):
         partner = request.env.user.partner_id
-        complaints = request.env['hostel.complaint'].search([
+        complaints = request.env['hostel.complaint'].sudo().search([
             ('student_id', '=', partner.id)
         ], order="create_date desc") if 'hostel.complaint' in request.env else []
 
@@ -247,7 +247,7 @@ class MahasantriPortal(CustomerPortal):
     def portal_my_complaints_new(self, **kw):
         partner = request.env.user.partner_id
         # Dapatkan kontrak kamar aktif
-        contract = request.env['hostel.contract'].search([
+        contract = request.env['hostel.contract'].sudo().search([
             ('student_id', '=', partner.id),
             ('state', '=', 'active')
         ], limit=1) if 'hostel.contract' in request.env else None
