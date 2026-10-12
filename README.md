@@ -60,6 +60,6 @@ sirita_mahad_portal/
 
 ## 👤 Author & Lisensi
 
-- **Pengembang**: sufyALDI | UPT TIPD IAIN Parepare
+- **Pengembang**: UPT TIPD IAIN Parepare
 - **Website**: [https://iainpare.ac.id](https://iainpare.ac.id)
 - **Lisensi**: LGPL-3
